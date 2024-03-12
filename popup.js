@@ -1,21 +1,22 @@
-document.getElementById('applyColor').addEventListener('click', async () => {
-    let color = document.getElementById('bgColorPicker').value; // Kullanıcının seçtiği rengi alır.
-    let [tab] = await chrome.tabs.query({active: true, currentWindow: true}); // Aktif sekmenin bilgisini alır.
-    chrome.scripting.executeScript({
-        target: {tabId: tab.id}, // Aktif sekmenin ID'sini hedef olarak belirler.
-        function: setPageBackgroundColor, // Uygulanacak fonksiyonu belirler.
-        args: [color] // Fonksiyona argüman olarak rengi geçer.
+document.addEventListener('DOMContentLoaded', function() {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.scripting.executeScript({
+            target: {tabId: tabs[0].id},
+            function: getPageDetails
+        }, (results) => {
+            if (results && results.length > 0) {
+                const headerTitle = results[0].result;
+                if (headerTitle) {
+                    document.getElementById('headerTitle').textContent = headerTitle;
+                } else {
+                    document.getElementById('headerTitle').textContent = "Başlık bulunamadı.";
+                }
+            }
+        });
     });
 });
 
-// Sayfanın arka plan rengini değiştiren fonksiyon, popup.js içinde tanımlı olmasına rağmen, sayfa içerisinde çalışır.
-function setPageBackgroundColor(color) {
-    document.body.style.backgroundColor = color; // Belirlenen rengi sayfanın arka planına uygular.
+function getPageDetails() {
+    const header = document.querySelector('.header-title');
+    return header ? header.textContent.trim() : null;
 }
-
-
-//Bu dosyada, applyColor id'li butona bir 'click' event listener eklenmiştir. 
-//Kullanıcı bu butona tıkladığında, chrome.scripting.executeScript fonksiyonu sayesinde, 
-//aktif sekmenin document.body.style.backgroundColor özelliği, seçilen renge ayarlanır. 
-//Bu işlem, setPageBackgroundColor fonksiyonunun sayfa üzerinde çalıştırılmasıyla gerçekleşir. 
-//args: [color] kullanımı, fonksiyona parametre olarak rengi geçmemizi sağlar.
