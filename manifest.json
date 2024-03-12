@@ -17,7 +17,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://sdgs.un.org/goals*"],
+      "matches": ["https://www.amazon.com.tr/dp/*"],
       "js": ["content.js"]
     }
   ],

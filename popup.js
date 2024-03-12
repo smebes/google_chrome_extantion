@@ -17,6 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function getPageDetails() {
-    const header = document.querySelector('.header-title');
-    return header ? header.textContent.trim() : null;
+    const titleElement = document.getElementById('productTitle') || document.querySelector('.product-title-word-break');
+    return titleElement ? titleElement.textContent.trim() : null;
 }

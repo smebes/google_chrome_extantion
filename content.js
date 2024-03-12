@@ -1,2 +1,2 @@
-let headerTitleContent = document.querySelector('.header-title').textContent.trim();
-chrome.runtime.sendMessage({headerTitle: headerTitleContent});
+const productTitle = document.getElementById('productTitle').textContent.trim();
+chrome.runtime.sendMessage({headerTitle: productTitle});
