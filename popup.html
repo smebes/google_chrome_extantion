@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>UN SDG Başlık</title>
+    <title>Baslik</title>
+    <style>
+        #headerTitle {
+            margin: 20px 0; /* Üst ve altina 20px bosluk ekler */
+            padding: 10px; /* İçten 10px bosluk ekler */
+            white-space: nowrap; /* İçeriği tek satirda tutar */
+            overflow: hidden; /* İçerik kutunun disina tasarsa gizler */
+            text-overflow: ellipsis; /* Tasan içeriği "..." ile gösterir */
+        }
+    </style>
 </head>
 <body>
-    <h1>UN SDG Başlık</h1>
-    <div id="headerTitle">Başlık burada gösterilecek...</div>
+    <h1>Baslik</h1>
+    <div id="headerTitle">Baslik burada gösterilecek...</div>
     <script src="popup.js"></script>
+    <button id="downloadButton">Download</button>
 </body>
 </html>
