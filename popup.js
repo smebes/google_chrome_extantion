@@ -26,21 +26,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     document.getElementById('downloadImageButton').addEventListener('click', function() {
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            const tab = tabs[0];
             chrome.scripting.executeScript({
-                target: {tabId: tabs[0].id},
+                target: {tabId: tab.id},
                 function: getImageUrlForDownload
             }, (injectionResults) => {
+                const asin = getASINFromUrl(tab.url);
                 for (const frameResult of injectionResults)
                     if (frameResult.result) {
                         chrome.downloads.download({
-                            url: frameResult.result, // Resmin URL'si burada alınıyor
-                            // İsteğe bağlı olarak filename özelliği ekleyebilirsiniz
-                            // filename: 'indirilen_resim.jpg'
+                            url: frameResult.result,
+                            filename: asin ? `${asin}.jpg` : 'downloaded-image.jpg'
                         });
                     }
             });
-        });
-    });        
+        });   
+    });   
+      
 });
 
 
@@ -114,4 +116,9 @@ function downloadProductDetails() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+}
+
+function getASINFromUrl(url) {
+    const asinMatch = url.match(/\/dp\/([A-Z0-9]{10})/i);
+    return asinMatch ? asinMatch[1] : null;
 }
