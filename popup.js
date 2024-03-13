@@ -24,12 +24,36 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+    document.getElementById('downloadImageButton').addEventListener('click', function() {
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            chrome.scripting.executeScript({
+                target: {tabId: tabs[0].id},
+                function: getImageUrlForDownload
+            }, (injectionResults) => {
+                for (const frameResult of injectionResults)
+                    if (frameResult.result) {
+                        chrome.downloads.download({
+                            url: frameResult.result, // Resmin URL'si burada alınıyor
+                            // İsteğe bağlı olarak filename özelliği ekleyebilirsiniz
+                            // filename: 'indirilen_resim.jpg'
+                        });
+                    }
+            });
+        });
+    });        
 });
 
-// function getPageDetails() {
-//     const titleElement = document.getElementById('productTitle') || document.querySelector('.product-title-word-break');
-//     return titleElement ? titleElement.textContent.trim() : null;
-// }
+
+function getImageUrlForDownload() {
+    const imageElement = document.getElementById('landingImage');
+    if (imageElement) {
+        return imageElement.src;
+    } else {
+        return null; 
+    }
+}
+
+
 
 function getProductDetailsForDownload() {
     let details = `Title: ${document.getElementById('productTitle') ? document.getElementById('productTitle').textContent.trim() : "Title not found"}\n`;
@@ -57,18 +81,6 @@ function getProductDetailsForDownload() {
 }
 
 
-// function downloadPageTitle() {
-//     const title = document.title || 'Basliksiz';
-//     const blob = new Blob([`Title: ${title}`], {type: 'text/plain;charset=utf-8'});
-//     const url = URL.createObjectURL(blob);
-//     const a = document.createElement('a');
-//     a.href = url;
-//     a.download = 'page-title.txt';
-//     document.body.appendChild(a);
-//     a.click();
-//     document.body.removeChild(a);
-//     URL.revokeObjectURL(url);
-// }
 
 function downloadProductDetails() {
     // Ürün detaylarını toplama

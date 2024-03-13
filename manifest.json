@@ -1,19 +1,21 @@
 {
   "manifest_version": 3,
-  "name": "UN SDG Başlık Alıcı",
+  "name": "Wep Scraper",
   "version": "1.0",
-  "description": "SDG hedeflerinin başlığını alır.",
+  "description": "Wep kaziyici ile Amazon bilgilerini almak",
   "icons": {
     "128": "icon.png"
   },
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "downloads"
   ],
+  "host_permissions": ["https://www.amazon.com.tr/dp/*"],
   "action": {
     "default_icon": "icon.png",
     "default_popup": "popup.html",
-    "default_title": "Başlık Göster"
+    "default_title": "Title"
   },
   "content_scripts": [
     {
