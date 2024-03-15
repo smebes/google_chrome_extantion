@@ -17,10 +17,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     document.getElementById('downloadButton').addEventListener('click', function() {
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            const tab = tabs[0]; // Aktif sekmeyi al
+            const asin = getASINFromUrl(tab.url); // ASIN numarasını al
+    
             chrome.scripting.executeScript({
-                target: {tabId: tabs[0].id},
-                function: downloadProductDetails
-                // function: downloadPageTitle
+                target: {tabId: tab.id},
+                function: getProductDetailsForDownload
+            }, (injectionResults) => {
+                for (const frameResult of injectionResults)
+                    if (frameResult.result) {
+                        const details = frameResult.result;
+                        const blob = new Blob([details], {type: 'text/plain;charset=utf-8'});
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        // ASIN varsa dosya adını ASIN ile belirle, yoksa varsayılan ismi kullan
+                        a.download = asin ? `${asin}.txt` : '1.txt';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }
             });
         });
     });
@@ -40,8 +57,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                     }
             });
-        });   
+        });  
     });   
+    document.getElementById('fetchDetails').addEventListener('click', function() {
+        const asinList = document.getElementById('asinList').value.split('\n').filter(Boolean);
+        chrome.runtime.sendMessage({action: "fetchDetails", asinList: asinList});
+    });
+    
       
 });
 
@@ -82,41 +104,6 @@ function getProductDetailsForDownload() {
     return details;
 }
 
-
-
-function downloadProductDetails() {
-    // Ürün detaylarını toplama
-    let details = `Title: ${document.title}\n`;
-    document.querySelectorAll('#detailBullets_feature_div .a-list-item, #productOverview_feature_div .a-list-item').forEach(item => {
-        const textContent = item.textContent.trim();
-        if (textContent) {
-            details += `${textContent.replace(/\s+/g, ' ')}\n`; // Fazladan boşlukları temizle
-        }
-    });
-
-    // Best Sellers Rank ve Customer Reviews ekle (Örnek)
-    // Bu alanlar sayfa yapısına bağlı olarak değişiklik gösterebilir
-    const bestSellersRank = document.querySelector("#SalesRank") ? document.querySelector("#SalesRank").textContent.trim() : "";
-    if (bestSellersRank) {
-        details += `Best Sellers Rank: ${bestSellersRank.replace(/\s+/g, ' ')}\n`;
-    }
-
-    const customerReviews = document.querySelector("#acrCustomerReviewText") ? document.querySelector("#acrCustomerReviewText").textContent.trim() : "";
-    if (customerReviews) {
-        details += `Customer Reviews: ${customerReviews.replace(/\s+/g, ' ')}\n`;
-    }
-
-    // Detayları içeren bir Blob oluşturma ve indirme işlemi
-    const blob = new Blob([details], {type: 'text/plain;charset=utf-8'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'product-details.txt'; // İndirilecek dosyanın adı
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
 
 function getASINFromUrl(url) {
     const asinMatch = url.match(/\/dp\/([A-Z0-9]{10})/i);
